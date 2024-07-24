@@ -126,4 +126,24 @@ public class Controller {
         }
     }
 
+    @PatchMapping("/reimbursements/description") // TODO: only works if logged in
+    public ResponseEntity<?> updateDescription(@RequestParam UUID reimbursement_id, @RequestBody String description) {
+        try {
+            Reimbursement r = this.reimbursementService.updateDescription(reimbursement_id, description);
+            return ResponseEntity.ok().body(r);
+        } catch (CustomException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/reimbursements/resolve/{status}") // TODO: only works if logged in
+    public ResponseEntity<?> resolveReimbursement(@RequestParam UUID reimbursement_id, @PathVariable String status) {
+        try {
+            Reimbursement r = this.reimbursementService.resolveReimbursement(reimbursement_id, status);
+            return ResponseEntity.ok().body(r);
+        } catch (CustomException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
+
 }

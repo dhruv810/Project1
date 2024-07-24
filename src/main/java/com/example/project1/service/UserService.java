@@ -67,4 +67,5 @@ public class UserService {
         u.setRole("MANAGER");
         return this.userRepository.save(u);
     }
+
 }

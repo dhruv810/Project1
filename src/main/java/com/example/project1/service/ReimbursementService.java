@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -54,5 +55,28 @@ public class ReimbursementService {
         // No need to store value, because if user isn't manager it will throw an error
         this.userService.isIdManagerId(managerId);
         return this.reimbursementRepository.findAllByStatus();
+    }
+
+    public Reimbursement updateDescription(UUID rId, String description) throws CustomException {
+        Optional<Reimbursement> r = this.reimbursementRepository.findById(rId);
+        if (r.isEmpty()) {
+            throw new CustomException("No reimbursement with id: " + rId);
+        }
+        Reimbursement re = r.get();
+        if (!re.getStatus().equals("PENDING")) {
+            throw new CustomException("Reimbursement cannot be edited because it is resolved.");
+        }
+        re.setDescription(description);
+        return this.reimbursementRepository.save(re);
+    }
+
+    public Reimbursement resolveReimbursement(UUID rId, String status) throws CustomException {
+        Optional<Reimbursement> r = this.reimbursementRepository.findById(rId);
+        if (r.isEmpty()) {
+            throw new CustomException("No reimbursement with id: " + rId);
+        }
+        Reimbursement re = r.get();
+        re.setStatus(status);
+        return this.reimbursementRepository.save(re);
     }
 }
