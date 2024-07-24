@@ -106,24 +106,24 @@ public class Controller {
         }
     }
 
-//    @DeleteMapping("/user/{userId}")
-//    public ResponseEntity<?> deleteUserById(@PathVariable UUID userId, @RequestParam UUID managerId) {
-//        try {
-//            this.userService.deleteUserById(userId, managerId);
-//            return ResponseEntity.status(200).body("User successfully deleted");
-//        } catch (CustomException e) {
-//            return ResponseEntity.status(400).body(e.getMessage());
-//        }
-//    }
-//
-//    @PatchMapping("/promote")
-//    public ResponseEntity<?> promote(@PathVariable UUID userId, @RequestParam UUID managerId) {
-//        try {
-//            User user = this.userService.promoteById(userId, managerId);
-//            return ResponseEntity.ok().body(user);
-//        } catch (CustomException e) {
-//            return ResponseEntity.status(400).body(e.getMessage());
-//        }
-//    }
+    @DeleteMapping("/user/{userId}")
+    public ResponseEntity<?> deleteUserById(@PathVariable UUID userId, @RequestParam UUID managerId) {
+        try {
+            this.userService.deleteUserById(userId, managerId);
+            return ResponseEntity.status(200).body("User successfully deleted");
+        } catch (CustomException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/promote/{userId}")
+    public ResponseEntity<?> promote(@PathVariable UUID userId, @RequestParam UUID managerId) {
+        try {
+            User user = this.userService.promoteById(userId, managerId);
+            return ResponseEntity.ok().body(user);
+        } catch (CustomException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
 
 }

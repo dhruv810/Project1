@@ -27,6 +27,7 @@ public class Reimbursement {
 
     @ManyToOne
     @JoinColumn(name = "user_Id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     public Reimbursement() {

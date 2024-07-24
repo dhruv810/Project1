@@ -3,6 +3,7 @@ package com.example.project1.entities;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Check;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -29,6 +30,9 @@ public class User {
     @Column(name = "role", nullable = false)
     private String role;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<Reimbursement> reimbursements;
+
     public User() {
     }
 
@@ -38,6 +42,7 @@ public class User {
         this.username = username;
         this.password = password;
         this.role = role;
+        this.reimbursements = null;
     }
 
     public User(UUID userId, String firstName, String lastName, String username, String password, String role) {
@@ -47,6 +52,7 @@ public class User {
         this.username = username;
         this.password = password;
         this.role = role;
+        this.reimbursements = null;
     }
 
     public UUID getUserId() {
