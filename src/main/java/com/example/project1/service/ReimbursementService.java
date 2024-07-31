@@ -57,20 +57,24 @@ public class ReimbursementService {
         return this.reimbursementRepository.findAllByStatus();
     }
 
-    public Reimbursement updateDescription(UUID rId, String description) throws CustomException {
+    public Reimbursement updateDescription(UUID rId, String description, User user) throws CustomException {
         Optional<Reimbursement> r = this.reimbursementRepository.findById(rId);
         if (r.isEmpty()) {
             throw new CustomException("No reimbursement with id: " + rId);
         }
         Reimbursement re = r.get();
+        if (! re.getUser().equals(user)) {
+            throw new CustomException("Cannot edit someone else's reimbursement");
+        }
         if (!re.getStatus().equals("PENDING")) {
-            throw new CustomException("Reimbursement cannot be edited because it is resolved.");
+            throw new CustomException("Resolved reimbursement cannot be edited.");
         }
         re.setDescription(description);
         return this.reimbursementRepository.save(re);
     }
 
-    public Reimbursement resolveReimbursement(UUID rId, String status) throws CustomException {
+    public Reimbursement resolveReimbursement(UUID rId, String status, UUID user) throws CustomException {
+        userService.isIdManagerId(user);
         Optional<Reimbursement> r = this.reimbursementRepository.findById(rId);
         if (r.isEmpty()) {
             throw new CustomException("No reimbursement with id: " + rId);

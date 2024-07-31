@@ -27,7 +27,6 @@ public class Reimbursement {
 
     @ManyToOne
     @JoinColumn(name = "user_Id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     public Reimbursement() {
@@ -38,6 +37,12 @@ public class Reimbursement {
         this.amount = amount;
         this.status = status;
         this.user = user;
+    }
+
+    public Reimbursement(String description, Double amount, String status) {
+        this.description = description;
+        this.amount = amount;
+        this.status = status;
     }
 
     public Reimbursement(UUID reimId, String description, Double amount, String status, User user) {

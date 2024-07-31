@@ -7,6 +7,7 @@ import com.example.project1.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.rmi.ConnectIOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,6 +20,14 @@ public class UserService {
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public User getUserByUsernameAndPassword(String username, String password) throws CustomException{
+        Optional<User> user = this.userRepository.findByUsernameAndPassword(username, password);
+        if (user.isEmpty()) {
+            throw new CustomException("Enter Valid username and Password");
+        }
+        return user.get();
     }
 
     public User createUser(User user) throws CustomException {

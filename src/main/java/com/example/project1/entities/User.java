@@ -1,5 +1,6 @@
 package com.example.project1.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Check;
 
@@ -30,6 +31,7 @@ public class User {
     @Column(name = "role", nullable = false)
     private String role;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Reimbursement> reimbursements;
 
@@ -53,6 +55,14 @@ public class User {
         this.password = password;
         this.role = role;
         this.reimbursements = null;
+    }
+
+    public List<Reimbursement> getReimbursements() {
+        return reimbursements;
+    }
+
+    public void setReimbursements(List<Reimbursement> reimbursements) {
+        this.reimbursements = reimbursements;
     }
 
     public UUID getUserId() {
@@ -103,6 +113,8 @@ public class User {
         this.role = role;
     }
 
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -125,6 +137,7 @@ public class User {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", role='" + role + '\'' +
+                ", reimbursements=" + reimbursements +
                 '}';
     }
 }

@@ -3,8 +3,10 @@ package com.example.project1.controller;
 import com.example.project1.entities.Reimbursement;
 import com.example.project1.entities.User;
 import com.example.project1.exception.CustomException;
+import com.example.project1.service.AuthService;
 import com.example.project1.service.ReimbursementService;
 import com.example.project1.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,20 +37,27 @@ public class Controller {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<?> getAllUsers(@RequestParam UUID managerId) {
+    public ResponseEntity<?> getAllUsers(HttpSession httpSession) {
         try {
-            List<User> r = this.userService.getAllUsers(managerId);
+            User currentUser = (User) httpSession.getAttribute("user");
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            List<User> r = this.userService.getAllUsers(currentUser.getUserId());
             return ResponseEntity.status(200).body(r);
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 
-//    Extra
-    @GetMapping("/user/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable UUID id) {
+    @GetMapping("/user")
+    public ResponseEntity<?> getUserById(HttpSession httpSession) {
         try {
-             User user = this.userService.getUserById(id);
+            User currentUser = (User) httpSession.getAttribute("user");
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+             User user = this.userService.getUserById(currentUser.getUserId());
              return ResponseEntity.ok().body(user);
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
@@ -56,8 +65,13 @@ public class Controller {
     }
 
     @PostMapping("/reimbursement")
-    public ResponseEntity<?> createReimbursement(@RequestBody Reimbursement reimbursement) {
+    public ResponseEntity<?> createReimbursement(@RequestBody Reimbursement reimbursement, HttpSession httpSession) {
         try {
+            User currentUser = (User) httpSession.getAttribute("user");
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            reimbursement.setUser(currentUser);
             Reimbursement r = this.reimbursementService.createReimbursement(reimbursement);
             return ResponseEntity.status(201).body(r);
         } catch (CustomException e) {
@@ -65,31 +79,42 @@ public class Controller {
         }
     }
 
-    @GetMapping("/reimbursement/{userId}")
-    public ResponseEntity<?> getReimbursementsByUser(@PathVariable UUID userId) {
+    @GetMapping("/user/reimbursement")
+    public ResponseEntity<?> getReimbursementsByUser(HttpSession httpSession) {
         try {
-            List<Reimbursement> r = this.reimbursementService.getReimbursementsByUser(userId);
+            User currentUser = (User) httpSession.getAttribute("user");
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            List<Reimbursement> r = this.reimbursementService.getReimbursementsByUser(currentUser.getUserId());
             return ResponseEntity.status(200).body(r);
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 
-    @GetMapping("/reimbursement/pending/{userId}")
-    public ResponseEntity<?> getPendingReimbursementsByUser(@PathVariable UUID userId) {
+    @GetMapping("user/reimbursement/pending")
+    public ResponseEntity<?> getPendingReimbursementsByUser(HttpSession httpSession) {
         try {
-            List<Reimbursement> r = this.reimbursementService.getPendingReimbursementsByUser(userId);
+            User currentUser = (User) httpSession.getAttribute("user");
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            List<Reimbursement> r = this.reimbursementService.getPendingReimbursementsByUser(currentUser.getUserId());
             return ResponseEntity.status(200).body(r);
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 
-    // TODO: when finished login functionality remove manager_id from pathvariable
     @GetMapping("/reimbursements/all")
-    public ResponseEntity<?> getAllReimbursements(@RequestParam UUID managerId) {
+    public ResponseEntity<?> getAllReimbursements(HttpSession httpSession) {
         try {
-            List<Reimbursement> r = this.reimbursementService.getAllReimbursements(managerId);
+            User currentUser = (User) httpSession.getAttribute("user");
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            List<Reimbursement> r = this.reimbursementService.getAllReimbursements(currentUser.getUserId());
             return ResponseEntity.status(200).body(r);
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
@@ -97,9 +122,13 @@ public class Controller {
     }
 
     @GetMapping("/reimbursements/pending/all")
-    public ResponseEntity<?> getAllPendingReimbursements(@RequestParam UUID managerId) {
+    public ResponseEntity<?> getAllPendingReimbursements(HttpSession httpSession) {
         try {
-            List<Reimbursement> r = this.reimbursementService.getAllPendingReimbursements(managerId);
+            User currentUser = (User) httpSession.getAttribute("user");
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            List<Reimbursement> r = this.reimbursementService.getAllPendingReimbursements(currentUser.getUserId());
             return ResponseEntity.status(200).body(r);
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
@@ -107,9 +136,13 @@ public class Controller {
     }
 
     @DeleteMapping("/user/{userId}")
-    public ResponseEntity<?> deleteUserById(@PathVariable UUID userId, @RequestParam UUID managerId) {
+    public ResponseEntity<?> deleteUserById(@PathVariable UUID userId, HttpSession httpSession) {
         try {
-            this.userService.deleteUserById(userId, managerId);
+            User currentUser = (User) httpSession.getAttribute("user");
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            this.userService.deleteUserById(userId, currentUser.getUserId());
             return ResponseEntity.status(200).body("User successfully deleted");
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
@@ -117,29 +150,41 @@ public class Controller {
     }
 
     @PatchMapping("/promote/{userId}")
-    public ResponseEntity<?> promote(@PathVariable UUID userId, @RequestParam UUID managerId) {
+    public ResponseEntity<?> promote(@PathVariable UUID userId, HttpSession httpSession) {
         try {
-            User user = this.userService.promoteById(userId, managerId);
+            User currentUser = (User) httpSession.getAttribute("user");
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            User user = this.userService.promoteById(userId, currentUser.getUserId());
             return ResponseEntity.ok().body(user);
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 
-    @PatchMapping("/reimbursements/description") // TODO: only works if logged in
-    public ResponseEntity<?> updateDescription(@RequestParam UUID reimbursement_id, @RequestBody String description) {
+    @PatchMapping("/reimbursements/description")
+    public ResponseEntity<?> updateDescription(@RequestParam UUID reimbursement_id, @RequestBody String description, HttpSession httpSession) {
         try {
-            Reimbursement r = this.reimbursementService.updateDescription(reimbursement_id, description);
+            User currentUser = (User) httpSession.getAttribute("user");
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            Reimbursement r = this.reimbursementService.updateDescription(reimbursement_id, description, currentUser);
             return ResponseEntity.ok().body(r);
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 
-    @PatchMapping("/reimbursements/resolve/{status}") // TODO: only works if logged in
-    public ResponseEntity<?> resolveReimbursement(@RequestParam UUID reimbursement_id, @PathVariable String status) {
+    @PatchMapping("/reimbursements/resolve/{status}")
+    public ResponseEntity<?> resolveReimbursement(@RequestParam UUID reimbursement_id, @PathVariable String status, HttpSession httpSession) {
         try {
-            Reimbursement r = this.reimbursementService.resolveReimbursement(reimbursement_id, status);
+            User currentUser = (User) httpSession.getAttribute("user");
+            if (currentUser == null) {
+                return ResponseEntity.status(400).body("Login first");
+            }
+            Reimbursement r = this.reimbursementService.resolveReimbursement(reimbursement_id, status, currentUser.getUserId());
             return ResponseEntity.ok().body(r);
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
