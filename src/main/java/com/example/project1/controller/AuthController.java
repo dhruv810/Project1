@@ -29,13 +29,11 @@ public class AuthController {
             if (loggedInUser != null) {
                 httpSession.setAttribute("user", loggedInUser);
                 ses = httpSession;
-                System.out.println("logged in");
                 return ResponseEntity.ok().body(loggedInUser);
             }
             else {
                 return ResponseEntity.status(401).body("Invalid credentials");
             }
-
 
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());
@@ -47,6 +45,15 @@ public class AuthController {
     public ResponseEntity<?> logout(HttpSession httpSession) {
         httpSession.invalidate();
         return ResponseEntity.ok().body("Logged out");
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<?> getUser(HttpSession httpSession) {
+        User currentUser = (User) httpSession.getAttribute("user");
+        if (currentUser == null) {
+            return ResponseEntity.status(400).body("Login first");
+        }
+        return ResponseEntity.ok().body(currentUser);
     }
 
 

@@ -39,6 +39,11 @@ public class Reimbursement {
         this.user = user;
     }
 
+    public Reimbursement(UUID reimId, String description) {
+        this.reimId = reimId;
+        this.description = description;
+    }
+
     public Reimbursement(String description, Double amount, String status) {
         this.description = description;
         this.amount = amount;

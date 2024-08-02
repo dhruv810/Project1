@@ -83,14 +83,8 @@ public class Controller {
     @GetMapping("/user/reimbursement")
     public ResponseEntity<?> getReimbursementsByUser(HttpSession httpSession) {
         try {
-            if (httpSession == null) {
-                System.out.println("http sessison is null");
-
-            }
             User currentUser = (User) httpSession.getAttribute("user");
-            System.out.print(currentUser);
             if (currentUser == null) {
-                System.out.println("user not found in session");
                 return ResponseEntity.status(400).body("Login first");
             }
             List<Reimbursement> r = this.reimbursementService.getReimbursementsByUser(currentUser.getUserId());
@@ -171,13 +165,14 @@ public class Controller {
     }
 
     @PatchMapping("/reimbursements/description")
-    public ResponseEntity<?> updateDescription(@RequestParam UUID reimbursement_id, @RequestBody String description, HttpSession httpSession) {
+    public ResponseEntity<?> updateDescription(@RequestBody Reimbursement re, HttpSession httpSession) {
         try {
+            System.out.println(re.getDescription());
             User currentUser = (User) httpSession.getAttribute("user");
             if (currentUser == null) {
                 return ResponseEntity.status(400).body("Login first");
             }
-            Reimbursement r = this.reimbursementService.updateDescription(reimbursement_id, description, currentUser);
+            Reimbursement r = this.reimbursementService.updateDescription(re, currentUser);
             return ResponseEntity.ok().body(r);
         } catch (CustomException e) {
             return ResponseEntity.status(400).body(e.getMessage());

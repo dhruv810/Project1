@@ -57,10 +57,10 @@ public class ReimbursementService {
         return this.reimbursementRepository.findAllByStatus();
     }
 
-    public Reimbursement updateDescription(UUID rId, String description, User user) throws CustomException {
-        Optional<Reimbursement> r = this.reimbursementRepository.findById(rId);
+    public Reimbursement updateDescription(Reimbursement rei, User user) throws CustomException {
+        Optional<Reimbursement> r = this.reimbursementRepository.findById(rei.getReimId());
         if (r.isEmpty()) {
-            throw new CustomException("No reimbursement with id: " + rId);
+            throw new CustomException("No reimbursement with id: " + rei.getReimId());
         }
         Reimbursement re = r.get();
         if (! re.getUser().equals(user)) {
@@ -69,7 +69,7 @@ public class ReimbursementService {
         if (!re.getStatus().equals("PENDING")) {
             throw new CustomException("Resolved reimbursement cannot be edited.");
         }
-        re.setDescription(description);
+        re.setDescription(rei.getDescription());
         return this.reimbursementRepository.save(re);
     }
 
