@@ -29,7 +29,8 @@ public class AuthController {
             if (loggedInUser != null) {
                 httpSession.setAttribute("user", loggedInUser);
                 ses = httpSession;
-                return ResponseEntity.ok().body("Successfully logged in");
+                System.out.println("logged in");
+                return ResponseEntity.ok().body(loggedInUser);
             }
             else {
                 return ResponseEntity.status(401).body("Invalid credentials");
