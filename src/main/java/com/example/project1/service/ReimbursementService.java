@@ -4,6 +4,8 @@ import com.example.project1.entities.Reimbursement;
 import com.example.project1.entities.User;
 import com.example.project1.exception.CustomException;
 import com.example.project1.repository.ReimbursementRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,9 @@ public class ReimbursementService {
 
     private final ReimbursementRepository reimbursementRepository;
     private final UserService userService;
+
+    private static final Logger logger = LoggerFactory.getLogger(ReimbursementService.class);
+
 
     @Autowired
     public ReimbursementService(ReimbursementRepository rs, UserService userService) {
@@ -30,30 +35,35 @@ public class ReimbursementService {
         // No need to store value, because if user doesn't exist it will throw an error
         User u = this.userService.getUserById(reimbursement.getUser().getUserId());
         reimbursement.setUser(u);
+        logger.info("Reimbursement just created for amount of {} by {}", reimbursement.getAmount(), reimbursement.getUser());
         return this.reimbursementRepository.save(reimbursement);
     }
 
     public List<Reimbursement> getReimbursementsByUser(UUID userId) throws CustomException {
         // No need to store value, because if user doesn't exist it will throw an error
         this.userService.getUserById(userId);
+        logger.info("Retrieved all reimbursement by user: {}", userId);
         return this.reimbursementRepository.findAllByUserId(userId);
     }
 
     public List<Reimbursement> getPendingReimbursementsByUser(UUID userId) throws CustomException {
         // No need to store value, because if user doesn't exist it will throw an error
         this.userService.getUserById(userId);
+        logger.info("Retrieved all pending reimbursement by user: {}", userId);
         return this.reimbursementRepository.findAllByUserIDAndStatus(userId);
     }
 
     public List<Reimbursement> getAllReimbursements(UUID managerId) throws CustomException {
         // No need to store value, because if user isn't manager it will throw an error
         this.userService.isIdManagerId(managerId);
+        logger.info("Retrieved all reimbursement by all users for manager: {}", managerId);
         return this.reimbursementRepository.findAll();
     }
 
     public List<Reimbursement> getAllPendingReimbursements(UUID managerId) throws CustomException {
         // No need to store value, because if user isn't manager it will throw an error
         this.userService.isIdManagerId(managerId);
+        logger.info("Retrieved all pending reimbursement by all users for manager: {}", managerId);
         return this.reimbursementRepository.findAllByStatus();
     }
 
@@ -70,6 +80,7 @@ public class ReimbursementService {
             throw new CustomException("Resolved reimbursement cannot be edited.");
         }
         re.setDescription(rei.getDescription());
+        logger.info("Description updated for reimbursement id: {}", rei.getReimId());
         return this.reimbursementRepository.save(re);
     }
 
@@ -81,6 +92,7 @@ public class ReimbursementService {
         }
         Reimbursement re = r.get();
         re.setStatus(status);
+        logger.info("Reimbursement id: {}  resolved by {}", rId, user);
         return this.reimbursementRepository.save(re);
     }
 }
